@@ -13,7 +13,7 @@ class AsyncIOScheduler(threading.Thread):
 
     def __init__(self):
         self.loop = asyncio.new_event_loop()
-        self.periodic_tasks = {}
+        self._periodic_tasks = {}
         super().__init__()
 
     def add_periodic(self, name: str, func, interval: float, loop: asyncio.BaseEventLoop):
@@ -21,7 +21,7 @@ class AsyncIOScheduler(threading.Thread):
         Add a task to be dispatched to an event loop periodically, after that signal that we
         have some work to do and the thread event loop can start
         """
-        self.periodic_tasks[name] = {
+        self._periodic_tasks[name] = {
             'func': func,
             'interval': interval,
             'loop': loop,
@@ -30,9 +30,14 @@ class AsyncIOScheduler(threading.Thread):
         if not work_available.is_set():
             work_available.set()
 
+    @property
+    async def periodic_tasks(self):
+        for name, task in self._periodic_tasks.items():
+            yield name, task
+
     def remove_periodic(self, name: str):
         try:
-            del self.periodic_tasks[name]
+            del self._periodic_tasks[name]
         except KeyError:
             pass
 
@@ -45,7 +50,7 @@ class AsyncIOScheduler(threading.Thread):
         while True:
             now = self.loop.time()
             if self.periodic_tasks:
-                for task_name, task in self.periodic_tasks.items():
+                async for task_name, task in self.periodic_tasks:
                     if task['loop'].is_closed():
                         self.remove_periodic(task_name)
                     else:
