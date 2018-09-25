@@ -20,3 +20,11 @@ def started_scheduler(scheduler):
 @pytest.fixture
 def work_available_event():
     return work_available
+
+
+@pytest.fixture
+def dummy_coroutine():
+    async def f():
+        pass
+
+    return f
