@@ -9,6 +9,7 @@ name = "pypi"
 pytest = "*"
 ipdb = "*"
 tenacity = "*"
+tox = "*"
 
 [requires]
 python_version = "3.6"
