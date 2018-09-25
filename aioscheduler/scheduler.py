@@ -62,7 +62,7 @@ class AsyncIOScheduler(threading.Thread):
                             asyncio.run_coroutine_threadsafe(task['func'](), task['loop'])
                             task['last_executed'] = self.loop.time()
 
-                await asyncio.sleep(0)
+                await asyncio.sleep(0.005)
             else:
                 work_available.clear()
                 break
