@@ -41,6 +41,10 @@ class AsyncIOScheduler(threading.Thread):
         except KeyError:
             pass
 
+    def remove_all_tasks(self):
+        self._periodic_tasks = {}
+        work_available.clear()
+
     async def start_schedule(self):
         """
         The scheduler, every time the event loop leave this coroutine space to run
@@ -71,3 +75,6 @@ class AsyncIOScheduler(threading.Thread):
         while True:
             work_available.wait()
             self.loop.run_until_complete(self.start_schedule())
+
+    def stop(self):
+        self.remove_all_tasks()
