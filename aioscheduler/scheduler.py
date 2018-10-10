@@ -32,8 +32,13 @@ class AsyncIOScheduler(threading.Thread):
 
     @property
     async def periodic_tasks(self):
-        for name, task in self._periodic_tasks.items():
-            yield name, task
+        try:
+            for name, task in self._periodic_tasks.items():
+                yield name, task
+        except RuntimeError:
+            # The size of the _periodic_taks dict can change at runtime so if we are iterating over
+            # it and somebody removes a scheduled task we end up with a RuntimeError
+            pass
 
     def remove_periodic(self, name: str):
         try:
